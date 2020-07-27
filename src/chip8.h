@@ -3,6 +3,10 @@
 #include <array>
 #include <functional>
 #include <unordered_map>
+#include <display.h>
+
+using std::uint8_t;
+using std::uint16_t;
 
 class Chip8 {
     public:
@@ -39,7 +43,7 @@ class Chip8 {
         uint8_t sound_timer;
 
         // The state of the display (64 x 32)
-        std::array<uint8_t, 2048> gfx;
+        Display display;
 
         // The state of the keypad
         std::array<uint8_t, 16> keypad;
@@ -50,9 +54,15 @@ class Chip8 {
     
     private:
         void init_opcodes();
-        std::array<std::function<void(uint16_t)>, 16> opcode_table;
+        void init_opcode_table();
+        void init_opcode_0_map();
+        void init_opcode_8_map();
+        void init_opcode_e_map();
+        void init_opcode_f_map();
+
+        std::array<std::function<void(uint16_t ins_data)>, 16> opcode_table;
         std::unordered_map<uint8_t, std::function<void()>> opcode_0_map;
-        std::unordered_map<uint8_t, std::function<void(uint8_t, uint8_t)>> opcode_8_map;
-        std::unordered_map<uint8_t, std::function<void(uint16_t)>> opcode_e_map;
-        std::unordered_map<uint8_t, std::function<void(uint16_t)>> opcode_f_map;
+        std::unordered_map<uint8_t, std::function<void(uint8_t x, uint8_t y)>> opcode_8_map;
+        std::unordered_map<uint8_t, std::function<void()>> opcode_e_map;
+        std::unordered_map<uint8_t, std::function<void(uint8_t x)>> opcode_f_map;
 };
