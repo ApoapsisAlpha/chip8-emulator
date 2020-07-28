@@ -2,8 +2,6 @@
 #include <cstdint>
 #include <array>
 
-using std::uint8_t;
-
 class Display {
     public:
         /**

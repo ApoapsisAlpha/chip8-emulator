@@ -5,9 +5,6 @@
 #include <unordered_map>
 #include <display.h>
 
-using std::uint8_t;
-using std::uint16_t;
-
 class Chip8 {
     public:
         Chip8();
@@ -63,6 +60,6 @@ class Chip8 {
         std::array<std::function<void(uint16_t ins_data)>, 16> opcode_table;
         std::unordered_map<uint8_t, std::function<void()>> opcode_0_map;
         std::unordered_map<uint8_t, std::function<void(uint8_t x, uint8_t y)>> opcode_8_map;
-        std::unordered_map<uint8_t, std::function<void()>> opcode_e_map;
+        std::unordered_map<uint8_t, std::function<void(uint8_t x)>> opcode_e_map;
         std::unordered_map<uint8_t, std::function<void(uint8_t x)>> opcode_f_map;
 };

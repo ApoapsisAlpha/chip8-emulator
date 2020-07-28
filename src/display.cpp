@@ -1,5 +1,7 @@
 #include <display.h>
 
+using std::uint8_t;
+
 void Display::set_pixel(uint8_t x, uint8_t y, uint8_t state) {
     gfx[width * y + x] = state;
 }

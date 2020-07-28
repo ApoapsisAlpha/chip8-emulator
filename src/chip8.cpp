@@ -1,5 +1,8 @@
 #include "chip8.h"
 
+using std::uint8_t;
+using std::uint16_t;
+
 void Chip8::init_opcode_0_map() {
     // CLS
     opcode_0_map[0x0] = [this]() { display.clear(); };
@@ -50,6 +53,72 @@ void Chip8::init_opcode_8_map() {
     opcode_8_map[0xE] = [this](uint8_t x, uint8_t y) {
         V[0xF] = V[x] & 1;
         V[x] <<= 1;
+    };
+}
+
+void Chip8::init_opcode_e_map() {
+    // SKP Vx
+    opcode_e_map[0xE] = [this](uint8_t x) {
+        if (keypad[V[x]]) {
+            pc += 2;
+        }
+    };
+
+    // SKNP Vx
+    opcode_e_map[0x1] = [this](uint8_t x) {
+        if (!keypad[V[x]]) {
+            pc += 2;
+        }
+    };
+}
+
+void Chip8::init_opcode_f_map() {
+    // LD Vx, DT
+    opcode_f_map[0x07] = [this](uint8_t x) { V[x] = delay_timer; };
+
+    // LD Vx, K
+    opcode_f_map[0x0A] = [this](uint8_t x) {
+        pc -= 2;
+        for (uint8_t key = 0; key < (uint8_t) keypad.size(); ++key) {
+            if (keypad[key]) {
+                V[x] = key;
+                pc += 2;
+                break;
+            }
+        }
+    };
+
+    // LD DT, Vx
+    opcode_f_map[0x15] = [this](uint8_t x) { delay_timer = V[x]; };
+
+    // LD ST, Vx
+    opcode_f_map[0x18] = [this](uint8_t x) { sound_timer = V[x]; };
+
+    // ADD I, Vx
+    opcode_f_map[0x1E] = [this](uint8_t x) { I += V[x]; };
+
+    // LD F, Vx
+    opcode_f_map[0x1E] = [this](uint8_t x) { I = V[x] * 5; };
+
+    // LD B, Vx
+    opcode_f_map[0x1E] = [this](uint8_t x) {
+        memory[I] = V[x] / 100;
+        memory[I + 1] = (V[x] / 10) % 10;
+        memory[I + 2] = V[x] % 10;
+    };
+
+    // LD [I], Vx
+    opcode_f_map[0x1E] = [this](uint8_t x) {
+        for (uint8_t i = 0; i <= x; ++i) {
+            memory[I + i] = V[i];
+        }
+    };
+
+    // LD Vx, [I]
+    opcode_f_map[0x1E] = [this](uint8_t x) {
+        for (uint8_t i = 0; i <= x; ++i) {
+            V[i] = memory[I + i];
+        }
     };
 }
 
@@ -129,6 +198,12 @@ void Chip8::init_opcode_table() {
             y = (y + 1) >= display.height ? 0 : y + 1;
         }
     };
+
+    // Refer to 0xE submap
+    opcode_table[0xE] = [this](uint16_t ins_data) { opcode_e_map[ins_data & 0xF](ins_data >> 8); };
+
+    // Refer to 0xF submap
+    opcode_table[0xE] = [this](uint16_t ins_data) { opcode_f_map[ins_data & 0xFF](ins_data >> 8); };
 }
 
 void Chip8::init_opcodes() {
