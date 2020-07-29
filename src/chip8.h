@@ -9,6 +9,7 @@ class Chip8 {
     public:
         Chip8();
         void process_cycle();
+        void update_timers();
 
         // Current opcode (each instruction takes up a total of 2 bytes)
         uint16_t opcode;

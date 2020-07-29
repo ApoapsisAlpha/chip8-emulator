@@ -213,3 +213,22 @@ void Chip8::init_opcodes() {
     init_opcode_f_map();
     init_opcode_table();
 }
+
+void Chip8::process_cycle() {
+    // Read current opcode
+    opcode = memory[pc << 8] | memory[pc + 1];
+    pc += 2;
+
+    // Execute the instruction
+    opcode_table[opcode >> 12](opcode & 0x0FFF);
+}
+
+void Chip8::update_timers() {
+    if (sound_timer > 0) {
+        --sound_timer;
+    }
+
+    if (delay_timer > 0) {
+        --delay_timer;
+    }
+}
