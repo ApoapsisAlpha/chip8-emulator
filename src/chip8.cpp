@@ -3,6 +3,24 @@
 using std::uint8_t;
 using std::uint16_t;
 
+Chip8::Chip8() {
+    srand(time(0));
+    init_opcodes();
+    reset();
+}
+
+void Chip8::reset() {
+    I = 0;
+    pc = 0x200;
+    sp = 0;
+    delay_timer = 0;
+    sound_timer = 0;
+    display.clear();
+    stack.fill(0);
+    memory.fill(0);
+    std::copy(font_set.begin(), font_set.end(), memory.begin());
+}
+
 void Chip8::init_opcode_0_map() {
     // CLS
     opcode_0_map[0x0] = [this]() { display.clear(); };
